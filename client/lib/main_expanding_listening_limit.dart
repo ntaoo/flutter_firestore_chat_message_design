@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:client/query_snapshot_debug_print.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -8,7 +9,7 @@ import 'package:rxdart/rxdart.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  Firestore.instance.settings(persistenceEnabled: true);
+  Firestore.instance.settings(persistenceEnabled: false);
   runApp(MyApp());
 }
 
@@ -219,6 +220,7 @@ class MessagesRepository {
         .limit(limitNumber)
         .snapshots()
         .map((qs) {
+      querySnapshotDebugPrint(qs, 'expanding listening limit');
       return qs.documentChanges.map((change) {
         var changeType;
         switch (change.type) {
