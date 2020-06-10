@@ -273,13 +273,12 @@ class MessagesRepository {
       {DateTime startAfter}) async {
     var query = Firestore.instance
         .collection('messages')
-        .orderBy('sentAt', descending: true)
-        .limit(limitNumber);
+        .orderBy('sentAt', descending: true);
     if (startAfter != null) {
       query = query.startAfter([startAfter]);
     }
 
-    final qs = await query.snapshots().first;
+    final qs = await query.limit(limitNumber).snapshots().first;
 
     querySnapshotDebugPrint(
         qs, 'result for getting sentAt for listen boundary');
