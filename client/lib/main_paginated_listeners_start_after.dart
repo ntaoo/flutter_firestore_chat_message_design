@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:client/query_snapshot_debug_print.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -8,7 +9,7 @@ import 'package:rxdart/rxdart.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  Firestore.instance.settings(persistenceEnabled: true);
+  Firestore.instance.settings(persistenceEnabled: false);
   runApp(MyApp());
 }
 
@@ -104,9 +105,15 @@ class MessageList extends StatelessWidget {
                       delegate: SliverChildBuilderDelegate(
                         (context, index) {
                           final message = messages[index];
+                          var additionalInfo = '';
+                          if (index == messages.length - 1) {
+                            additionalInfo = 'last message';
+                          } else if (index == 0) {
+                            additionalInfo = 'first message';
+                          }
                           return ListTile(
                             title: Text(
-                                '${message.body} data from ${message.isFromCache ? 'cache' : 'server'}'),
+                                '${message.body} data from ${message.isFromCache ? 'cache' : 'server'} $additionalInfo'),
                             subtitle: Text(
                                 '${message.sentAt.hour}:${message.sentAt.minute}:${message.sentAt.second}. day: ${message.sentAt.day}'),
                             trailing: IconButton(
@@ -272,6 +279,8 @@ class MessagesRepository {
     }
 
     return query.snapshots().map((qs) {
+      querySnapshotDebugPrint(
+          qs, 'result of start after ${startAfter.toIso8601String()}');
       return qs.documentChanges.map((change) {
         var changeType;
         switch (change.type) {
